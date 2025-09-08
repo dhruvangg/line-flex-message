@@ -37,12 +37,24 @@ export const handler = async (event) => {
       };
     }
 
+    const apiResponse = await axios.get("https://api.hubapi.com/cms/v3/hubdb/tables/131527577/rows/195694281534", {
+      headers: { Authorization: `Bearer ${process.env.HUBSPOT_ACCESS_TOKEN}` },
+    });
+
+    const template = apiResponse.data;
+
+    const messageContent = renderTemplate(template.values.content, {
+      name: body.name,
+      date: body.date,
+      time: body.time,
+    });
+
     const data = {
       to: body.userId,
       messages: [
         {
           type: "flex",
-          altText: "This is a Flex Message",
+          altText: template.values.title,
           contents: {
             type: "bubble",
             body: {
@@ -51,7 +63,7 @@ export const handler = async (event) => {
               contents: [
                 {
                   type: "text",
-                  text: "Appointment Confirmation Card",
+                  "text": template.values.name,
                   weight: "bold",
                   size: "md",
                   color: "#00AA00",
@@ -59,7 +71,7 @@ export const handler = async (event) => {
                 },
                 {
                   type: "text",
-                  text: `Dear ${body.name},\nYour appointment is scheduled for ${body.date} at ${body.time}. Please reply "YES" to confirm, "NO" to cancel, or "RESCHEDULE" to request another time.\n\nClinic: Soma Health Longevity Wellness Clinic\nContact: 098 279 4738\nAddress: 4th Floor, Erawan Bangkok, 494 Phloen Chit Rd, Lumphini, Pathum Wan, Bangkok 10330\n\nWe look forward to supporting your journey to optimal health!`,
+                  text: messageContent,
                   size: "sm",
                   margin: "md",
                   wrap: true,
@@ -81,7 +93,7 @@ export const handler = async (event) => {
                   color: "#22C55E",
                   action: {
                     type: "postback",
-                    label: "Confirm",
+                    label: template.values.confirm_label || "Confirm",
                     data: "action=confirm&appointmentId=123",
                   },
                 },
@@ -91,7 +103,7 @@ export const handler = async (event) => {
                   color: "#E5E7EB",
                   action: {
                     type: "postback",
-                    label: "Reschedule",
+                    label: template.values.reschedule_label || "Reschedule",
                     data: "action=reschedule&appointmentId=123",
                   },
                 },
@@ -101,7 +113,7 @@ export const handler = async (event) => {
                   color: "#EF4444",
                   action: {
                     type: "postback",
-                    label: "Cancel",
+                    label: template.values.cancel_label || "Cancel",
                     data: "action=cancel&appointmentId=123",
                   },
                 },
@@ -131,7 +143,6 @@ export const handler = async (event) => {
       }),
     };
   } catch (error) {
-    console.error("LINE API error:", error.response?.data || error.message);
     return {
       statusCode: error.response?.status || 500,
       body: JSON.stringify({
@@ -141,3 +152,17 @@ export const handler = async (event) => {
     };
   }
 };
+
+function renderTemplate(content, patient) {
+  if (!content || typeof content !== "string") {
+    console.error("Template content is invalid:", content);
+    return "";
+  }
+
+  return content
+    .replace(/\\n/g, "\n")
+    .replace(/\\"/g, '"')
+    .replace(/\$\{name\}/g, patient.name)
+    .replace(/\$\{date\}/g, patient.date)
+    .replace(/\$\{time\}/g, patient.time);
+}
