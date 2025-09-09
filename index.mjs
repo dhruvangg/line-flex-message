@@ -92,31 +92,31 @@ export const handler = async (event) => {
                   style: "primary",
                   color: "#22C55E",
                   action: {
-                    type: "message",
-                    label: "Confirm",
-                    text: "Confirm Appointment"
-                  }
+                    type: "postback",
+                    label: template.values.confirm_label || "Confirm",
+                    data: "action=confirm&appointmentId=123",
+                  },
                 },
                 {
                   type: "button",
                   style: "secondary",
                   color: "#E5E7EB",
                   action: {
-                    type: "message",
-                    label: "Reschedule",
-                    text: "Reschedule Appointment"
-                  }
+                    type: "postback",
+                    label: template.values.reschedule_label || "Reschedule",
+                    data: "action=reschedule&appointmentId=123",
+                  },
                 },
                 {
                   type: "button",
                   style: "primary",
                   color: "#EF4444",
                   action: {
-                    type: "message",
-                    label: "Cancel",
-                    text: "Cancel Appointment"
-                  }
-                }
+                    type: "postback",
+                    label: template.values.cancel_label || "Cancel",
+                    data: "action=cancel&appointmentId=123",
+                  },
+                },
               ],
             },
           },
