@@ -49,6 +49,46 @@ export const handler = async (event) => {
       time: body.time,
     });
 
+    const actionButtons = [];
+
+    if (template.values.confirm_label) {
+      actionButtons.push({
+        type: "button",
+        style: "primary",
+        color: "#22C55E",
+        action: {
+          type: "postback",
+          label: template.values.confirm_label,
+          data: `action=confirm&appointmentId=${body.appointmentId}`,
+        }
+      })
+    }
+    if (template.values.reschedule_label) {
+      actionButtons.push({
+        type: "button",
+        style: "secondary",
+        color: "#E5E7EB",
+        action: {
+          type: "postback",
+          label: template.values.reschedule_label,
+          data: `action=reschedule&appointmentId=${body.appointmentId}`,
+        }
+      })
+    }
+
+    if (template.values.cancel_label) {
+      actionButtons.push({
+        type: "button",
+        style: "primary",
+        color: "#EF4444",
+        action: {
+          type: "postback",
+          label: template.values.cancel_label || "Cancel",
+          data: `action=cancel&appointmentId=${body.appointmentId}`,
+        }
+      })
+    }
+
     const data = {
       to: body.userId,
       messages: [
@@ -86,38 +126,7 @@ export const handler = async (event) => {
               type: "box",
               layout: "vertical",
               spacing: "md",
-              contents: [
-                {
-                  type: "button",
-                  style: "primary",
-                  color: "#22C55E",
-                  action: {
-                    type: "postback",
-                    label: template.values.confirm_label || "Confirm",
-                    data: `action=confirm&appointmentId=${body.appointmentId}`,
-                  },
-                },
-                {
-                  type: "button",
-                  style: "secondary",
-                  color: "#E5E7EB",
-                  action: {
-                    type: "postback",
-                    label: template.values.reschedule_label || "Reschedule",
-                    data: `action=reschedule&appointmentId=${body.appointmentId}`,
-                  },
-                },
-                {
-                  type: "button",
-                  style: "primary",
-                  color: "#EF4444",
-                  action: {
-                    type: "postback",
-                    label: template.values.cancel_label || "Cancel",
-                    data: `action=cancel&appointmentId=${body.appointmentId}`,
-                  },
-                },
-              ],
+              contents: actionButtons,
             },
           },
         },
