@@ -37,7 +37,7 @@ export const handler = async (event) => {
       };
     }
 
-    const apiResponse = await axios.get(`https://api.hubapi.com/cms/v3/hubdb/tables/131527577/rows/${tableRowId}`, {
+    const apiResponse = await axios.get(`https://api.hubapi.com/cms/v3/hubdb/tables/131527577/rows/${body.tableRowId}`, {
       headers: { Authorization: `Bearer ${process.env.HUBSPOT_ACCESS_TOKEN}` },
     });
 
