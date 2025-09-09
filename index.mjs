@@ -15,7 +15,7 @@ export const handler = async (event) => {
     };
   }
 
-  const requiredFields = ["userId", "name", "date", "time", "appointmentId"];
+  const requiredFields = ["userId", "name", "date", "time", "appointmentId", "tableRowId"];
   const missing = requiredFields.filter((field) => !body[field]);
 
   if (missing.length > 0) {
@@ -37,7 +37,7 @@ export const handler = async (event) => {
       };
     }
 
-    const apiResponse = await axios.get("https://api.hubapi.com/cms/v3/hubdb/tables/131527577/rows/195694281534", {
+    const apiResponse = await axios.get(`https://api.hubapi.com/cms/v3/hubdb/tables/131527577/rows/${tableRowId}`, {
       headers: { Authorization: `Bearer ${process.env.HUBSPOT_ACCESS_TOKEN}` },
     });
 
@@ -59,7 +59,7 @@ export const handler = async (event) => {
         action: {
           type: "postback",
           label: template.values.confirm_label,
-          data: `action=confirm&appointmentId=${body.appointmentId}`,
+          data: `action=confirm&appointmentId=${body.appointmentId}&tableRowId=${body.tableRowId}`,
         }
       })
     }
@@ -71,11 +71,10 @@ export const handler = async (event) => {
         action: {
           type: "postback",
           label: template.values.reschedule_label,
-          data: `action=reschedule&appointmentId=${body.appointmentId}`,
+          data: `action=reschedule&appointmentId=${body.appointmentId}&tableRowId=${body.tableRowId}`,
         }
       })
     }
-
     if (template.values.cancel_label) {
       actionButtons.push({
         type: "button",
@@ -84,7 +83,7 @@ export const handler = async (event) => {
         action: {
           type: "postback",
           label: template.values.cancel_label || "Cancel",
-          data: `action=cancel&appointmentId=${body.appointmentId}`,
+          data: `action=cancel&appointmentId=${body.appointmentId}&tableRowId=${body.tableRowId}`,
         }
       })
     }
