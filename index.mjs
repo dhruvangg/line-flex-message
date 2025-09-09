@@ -15,7 +15,7 @@ export const handler = async (event) => {
     };
   }
 
-  const requiredFields = ["userId", "name", "date", "time"];
+  const requiredFields = ["userId", "name", "date", "time", "appointmentId"];
   const missing = requiredFields.filter((field) => !body[field]);
 
   if (missing.length > 0) {
@@ -94,7 +94,7 @@ export const handler = async (event) => {
                   action: {
                     type: "postback",
                     label: template.values.confirm_label || "Confirm",
-                    data: "action=confirm&appointmentId=123",
+                    data: `action=confirm&appointmentId=${body.appointmentId}`,
                   },
                 },
                 {
@@ -104,7 +104,7 @@ export const handler = async (event) => {
                   action: {
                     type: "postback",
                     label: template.values.reschedule_label || "Reschedule",
-                    data: "action=reschedule&appointmentId=123",
+                    data: `action=reschedule&appointmentId=${body.appointmentId}`,
                   },
                 },
                 {
@@ -114,7 +114,7 @@ export const handler = async (event) => {
                   action: {
                     type: "postback",
                     label: template.values.cancel_label || "Cancel",
-                    data: "action=cancel&appointmentId=123",
+                    data: `action=cancel&appointmentId=${body.appointmentId}`,
                   },
                 },
               ],
