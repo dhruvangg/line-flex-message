@@ -43,50 +43,7 @@ export const handler = async (event) => {
 
     const template = apiResponse.data;
 
-    const messageContent = renderTemplate(template.values.content, {
-      name: body.name,
-      date: body.date,
-      time: body.time,
-    });
-
-    const actionButtons = [];
-
-    if (template.values.confirm_label) {
-      actionButtons.push({
-        type: "button",
-        style: "primary",
-        color: "#22C55E",
-        action: {
-          type: "postback",
-          label: template.values.confirm_label,
-          data: `action=confirm&appointmentId=${body.appointmentId}&tableRowId=${body.tableRowId}`,
-        }
-      })
-    }
-    if (template.values.reschedule_label) {
-      actionButtons.push({
-        type: "button",
-        style: "secondary",
-        color: "#E5E7EB",
-        action: {
-          type: "postback",
-          label: template.values.reschedule_label,
-          data: `action=reschedule&appointmentId=${body.appointmentId}&tableRowId=${body.tableRowId}`,
-        }
-      })
-    }
-    if (template.values.cancel_label) {
-      actionButtons.push({
-        type: "button",
-        style: "primary",
-        color: "#EF4444",
-        action: {
-          type: "postback",
-          label: template.values.cancel_label || "Cancel",
-          data: `action=cancel&appointmentId=${body.appointmentId}&tableRowId=${body.tableRowId}`,
-        }
-      })
-    }
+    const messageContent = JSON.parse(renderTemplate(template.values.json, body));
 
     const data = {
       to: body.userId,
@@ -94,40 +51,7 @@ export const handler = async (event) => {
         {
           type: "flex",
           altText: template.values.title,
-          contents: {
-            type: "bubble",
-            body: {
-              type: "box",
-              layout: "vertical",
-              contents: [
-                {
-                  type: "text",
-                  "text": template.values.name,
-                  weight: "bold",
-                  size: "md",
-                  color: "#00AA00",
-                  wrap: true,
-                },
-                {
-                  type: "text",
-                  text: messageContent,
-                  size: "sm",
-                  margin: "md",
-                  wrap: true,
-                },
-                {
-                  type: "separator",
-                  margin: "md",
-                },
-              ],
-            },
-            footer: {
-              type: "box",
-              layout: "vertical",
-              spacing: "md",
-              contents: actionButtons,
-            },
-          },
+          contents: messageContent
         },
       ],
     };
@@ -161,16 +85,16 @@ export const handler = async (event) => {
   }
 };
 
-function renderTemplate(content, patient) {
+function renderTemplate(content, data) {
   if (!content || typeof content !== "string") {
     console.error("Template content is invalid:", content);
     return "";
   }
 
   return content
-    .replace(/\\n/g, "\n")
-    .replace(/\\"/g, '"')
-    .replace(/\$\{name\}/g, patient.name)
-    .replace(/\$\{date\}/g, patient.date)
-    .replace(/\$\{time\}/g, patient.time);
+  .replace(/\[name\]/g, data.name)
+  .replace(/\[date\]/g, data.date)
+  .replace(/\[time\]/g, data.time)
+  .replace(/\[appointmentId\]/g, data.appointmentId)
+  .replace(/\[tableRowId\]/g, data.tableRowId);
 }
